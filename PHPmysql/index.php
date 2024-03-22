@@ -23,18 +23,61 @@
     <body>
         <div class="container">
             <h1>MAAILMA MÕNUSAMAID PALAD</h1>
+                <h2>UUE ALBUMI LISAMINE</h2>
+                <form action="#" method="get">
+                    artist <input type="text" name="artist"><br>
+                    album<input type="text" name="album"><br>
+                    aasta <input type="number" name="aasta" min="1990"><br>
+                    hind <input type="number" name="hind" step="0.01"><br>
+                    <input type="submit" value=" + lisa uus" name="lisa">
+                </form>
+            <h2>OTSING</h2>
             <form action="#" method="get">
                 OTSI: <input type="text" name="s">
                 <input type="submit" value="OTSI">
             </form>
 <div class="row row-cols-1 row-cols-md-3 g-4 pt-4">
             <?php
+            //LISAMINE
+                if(!empty($_GET["lisa"])){
+                    $artist = $_GET["artist"];
+                    $album = $_GET["album"];
+                    $aasta = $_GET["aasta"];
+                    $hind = $_GET["hind"];
+
+                    $paring = "INSERT INTO albumid(artist, album, aasta, hind) VALUES ('$artist', '$album', '$aasta', '$hind')";
+                    $valjund = mysqli_query($yhendus, $paring);
+
+                    if($valjund){
+                        echo "Lisamine Õnnestus!";
+                    }else{
+                        echo "Kustutamine ebaõnnestus";
+                    }
+                }
+
+
+            //KUSTUTAMINE
+                if(!empty($_GET["del"]) && !empty($_GET["id"])){
+                    $del = $_GET["del"];
+                    $id = $_GET["id"];
+
+                    $paring = "DELETE FROM albumid WHERE id=$id";
+                    $valjund = mysqli_query($yhendus, $paring);
+
+                    if($valjund){
+                        //echo "Kustutamine Õnnestus!";
+                        header("Location: index.php?msg=true");
+                    }else{
+                        //echo "Kustutamine ebaõnnestus";
+                        header("Location: index.php?msg=false");
+                    }
+                }
             //OTSING
                 if (isset($_GET["s"])) {
                     $s = $_GET["s"];
-                    $paring = 'SELECT album, hind FROM albumid WHERE album LIKE "%'.$s.'%"';            
+                    $paring = 'SELECT id, album, hind FROM albumid WHERE album LIKE "%'.$s.'%"';            
                 } else {
-                    $paring = "SELECT album, hind FROM albumid ORDER BY artist ASC LIMIT 10";
+                    $paring = "SELECT id, album, hind FROM albumid ORDER BY artist ASC LIMIT 10";
                 }
             //saadan soovitud ühendusele minu päringu
                 $valjund = mysqli_query($yhendus, $paring);    
@@ -50,6 +93,7 @@
                         <h5 class="card-title">'.$rida['album'].'</h5>
                         <p class="card-text">'.$rida['hind'].'€</p>
                         <a href="#" class="btn btn-danger">OSTA</a>
+                        <a href="index.php?del=kustuta&id='.$rida['id'].'" class="btn btn-warning">KUSTUTA</a>
                     </div>
                 </div>
                 </div>
